@@ -10,7 +10,7 @@ NVR with realtime local object detection for IP cameras, deployed on sophgo bm16
 配置你的ip摄像头，并配置好rtsp流的URL。<br />这里本文在计算机上使用[OBS Studio](https://obsproject.com/download)搭配[RTSP server plugin](https://github.com/iamscottxu/obs-rtspserver)进行模拟。使用本地摄像头、窗口采集或者视频文件作为直播源，打开`工具-->RTSP 服务器`设置URL的端口和目录，如`rtsp://localhost:554/rtsp`，点击`启动`。<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721964427815-2bc05b41-d26c-461b-b0de-c6a62d17b1e6.png#averageHue=%23272a33&clientId=u65dba835-b3fb-4&from=paste&height=892&id=g4AK5&originHeight=892&originWidth=1061&originalType=binary&ratio=1&rotation=0&showTitle=false&size=282368&status=done&style=none&taskId=ub19b9676-ea1e-4ca8-8a47-ae1871e4c75&title=&width=1061)
 <a name="sHh5v"></a>
 ### 1.2 连接bm1684x soc（以Airbox为例）
-将AirBox的LAN链接网线，WAN口与计算机相连。然后在计算机端配置IP地址，以windows操作系统为例，打开`设置\网络和Internet\更改适配器选项`，点击`以太网——>属性`，手动设置IP地址为192.168.150.2，子网掩码255.255.255.0。连接成功后，AirBox的IP即是192.168.150.1。<br />使用ssh远程工具，连接Airbox。以Termius为例：`NEW HOST`--> IP or Hostname填192.168.150.1，<br />Username：linaro，Password：linaro。<br />Airbox产品已经配置好驱动和libsophon（在 /opt/sophon目录下），可以直接使用bm-smi命令查看tpu信息。
+将AirBox的LAN链接网线，WAN口与计算机相连。然后在计算机端配置IP地址，以windows操作系统为例，打开`设置\网络和Internet\更改适配器选项`，点击`以太网——>属性`，手动设置IP地址为`192.168.150.2`，子网掩码`255.255.255.0`。连接成功后，AirBox的IP即是`192.168.150.1`。<br />使用ssh远程工具，连接Airbox。以Termius为例：`NEW HOST`--> IP or Hostname：`192.168.150.1`，Username：`linaro`，Password：`linaro`。<br />Airbox产品已经配置好驱动和libsophon（在 /opt/sophon目录下），可以直接使用`bm-smi`命令查看tpu信息。
 <a name="hkOeB"></a>
 ### 1.3 环境配置
 原项目提供了docker镜像进行快捷的配置，因此我们先装好docker。
@@ -35,7 +35,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 docker-compose --version #查看版本信息
 ```
-新建docker-compose.yml文档用于创建容器；根据frigate使用要求，我们在同级目录下建立`config`和 `storage`文件夹并挂载到docker。docker-compose.yml内容如下：
+新建`docker-compose.yml`文档用于创建容器；根据frigate使用要求，我们在同级目录下建立`config`和 `storage`文件夹并挂载到docker。`docker-compose.yml`内容如下：
 ```bash
 services:
   frigate:
@@ -92,7 +92,7 @@ snapshots:
   retain:
     default: 1
     
-detectors:  # <--- 先使用默认cpu作为detector进行创建
+detectors:  # <--- 先使用默认cpu作为detector
   cpu1:
     type: cpu
     num_threads: 3
@@ -110,7 +110,7 @@ cameras:
       mask:
         - 0,461,3,0,1919,0,1919,843,1699,492,1344,458,1346,336,973,317,869,375,866,432
 ```
-在docker-compose.yml文档的同级目录下，使用docker-compose工具创建容器。
+在`docker-compose.yml`文档的同级目录下，使用docker-compose工具创建容器。
 ```bash
 docker-compose up
 ```
@@ -131,7 +131,7 @@ docker stop frigate
 ## 二、适配 bm1684x TPU
 <a name="XjLVc"></a>
 ### 2.1 模型转换（可选，项目已提供[yolov8n_320_1684x_f32.bmodel](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/yolov8n_320_1684x_f32.bmodel)）
-需要将pt/tflite/onnx等模型转为bmodel，具体过程参考[tpu-mlir](https://tpumlir.org/docs/quick_start/index.html)。<br />本文将转换yolov8n的模型，先下载yolov8n的onnx模型：
+需要将pt、tflite、onnx等模型转为bmodel，具体过程参考[tpu-mlir](https://tpumlir.org/docs/quick_start/index.html)。<br />本文将转换yolov8n的模型，先下载yolov8n的onnx模型：
 ```bash
 from ultralytics import YOLO
 model = YOLO("yolov8n.pt")
@@ -141,7 +141,7 @@ model.export(format="onnx", imgsz=320)
 # result[0].show()
 ```
 <a name="Ge71v"></a>
-#### 2.1.1 tpu-mlir开发环境配置/
+#### 2.1.1 tpu-mlir开发环境配置
 在windows计算机安装docker-desktop，下载所需的镜像：
 ```bash
 docker pull sophgo/tpuc_dev:latest
@@ -275,7 +275,7 @@ detectors:
     type: openvino
     device: AUTO
     model:
-      path: /config/model_cache/yolov8n_320.bmodel
+      path: /config/model_cache/yolov8n_320_1684x_f32.bmodel
 ```
 
 
