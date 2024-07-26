@@ -1,16 +1,18 @@
 # frigate_in_sophgo_bm1684x
 NVR with realtime local object detection for IP cameras, deployed on sophgo bm1684x
-NVR with realtime local object detection for IP cameras, deployed on sophgo bm1684x
 <a name="xfcQ0"></a>
 ## 一、原项目复现
 > 原项目地址：[https://github.com/blakeblackshear/frigate](https://github.com/blakeblackshear/frigate)
 
 本项目旨在为frigate项目适配sophgo的bm1684x TPU，我们首先对原项目进行复现。
+<a name="Fxg52"></a>
+### 1.1 摄像头准备
+配置你的ip摄像头，并配置好rtsp流的URL。<br />这里本文在计算机上使用[OBS Studio](https://obsproject.com/download)搭配[RTSP server plugin](https://github.com/iamscottxu/obs-rtspserver)进行模拟。使用本地摄像头、窗口采集或者视频文件作为直播源，打开`工具-->RTSP 服务器`设置URL的端口和目录，如`rtsp://localhost:554/rtsp`，点击`启动`。<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721964427815-2bc05b41-d26c-461b-b0de-c6a62d17b1e6.png#averageHue=%23272a33&clientId=u65dba835-b3fb-4&from=paste&height=892&id=g4AK5&originHeight=892&originWidth=1061&originalType=binary&ratio=1&rotation=0&showTitle=false&size=282368&status=done&style=none&taskId=ub19b9676-ea1e-4ca8-8a47-ae1871e4c75&title=&width=1061)
 <a name="sHh5v"></a>
-### 1.1 连接bm1684x soc（以Airbox为例）
+### 1.2 连接bm1684x soc（以Airbox为例）
 将AirBox的LAN链接网线，WAN口与计算机相连。然后在计算机端配置IP地址，以windows操作系统为例，打开`设置\网络和Internet\更改适配器选项`，点击`以太网——>属性`，手动设置IP地址为192.168.150.2，子网掩码255.255.255.0。连接成功后，AirBox的IP即是192.168.150.1。<br />使用ssh远程工具，连接Airbox。以Termius为例：`NEW HOST`--> IP or Hostname填192.168.150.1，<br />Username：linaro，Password：linaro。<br />Airbox产品已经配置好驱动和libsophon（在 /opt/sophon目录下），可以直接使用bm-smi命令查看tpu信息。
 <a name="hkOeB"></a>
-### 1.2 环境配置
+### 1.3 环境配置
 原项目提供了docker镜像进行快捷的配置，因此我们先装好docker。
 ```bash
 # 1. 更新软件包索引
@@ -33,7 +35,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 docker-compose --version #查看版本信息
 ```
-新建docker-compose.yml文档用于创建容器；根据frigate使用要求，我们在同级目录下建立`config`和 `storage`文件夹并挂载到docker。
+新建docker-compose.yml文档用于创建容器；根据frigate使用要求，我们在同级目录下建立`config`和 `storage`文件夹并挂载到docker。docker-compose.yml内容如下：
 ```bash
 services:
   frigate:
@@ -70,7 +72,7 @@ services:
     tty: true
     stdin_open: true
 ```
-在`./config`文件夹下，应有frigate的配置文件`config.yml`，其内容可以编写如下，
+在`./config`文件夹下，应有frigate的配置文件`config.yml`，其内容可以编写如下：
 ```bash
 mqtt:
   enabled: False
@@ -112,7 +114,7 @@ cameras:
 ```bash
 docker-compose up
 ```
-现在我们创建好容器，并在一直运行中。我们建立新的ssh连接，用下面命令使TPU环境生效。
+在本地计算机打开[http://192.168.150.1:5000/](http://192.168.150.1:5000/)可查看frigate管理页面。<br />现在我们创建好容器，并在一直运行中。我们建立新的ssh连接，用下面命令使TPU环境生效。
 ```bash
 # 进入 Docker 容器
 sudo docker exec -it frigate bash
@@ -121,17 +123,65 @@ ldconfig
 # 在 Docker 容器中运行此命令以确保 libsophon 工具可使用
 for f in /etc/profile.d/*sophon*; do source $f; done
 ```
-使用`bm-smi`命令验证一下，正常情况如下：<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721963652268-c124005b-81ac-44cc-b556-b2d8f9341b89.png#averageHue=%2340435b&clientId=u65dba835-b3fb-4&from=paste&height=294&id=u9790f00f&originHeight=294&originWidth=907&originalType=binary&ratio=1&rotation=0&showTitle=false&size=39808&status=done&style=none&taskId=u03b918e7-8d79-40ba-a666-ff4f7baa324&title=&width=907)
-<a name="dKn8f"></a>
-### 1.3 摄像头准备
-配置你的ip摄像头，并配置好rtsp流的URL。<br />这里本文在计算机上使用[OBS Studio](https://obsproject.com/download)搭配[RTSP server plugin](https://github.com/iamscottxu/obs-rtspserver)进行模拟。使用本地摄像头、窗口采集或者视频文件作为直播源，打开`工具-->RTSP 服务器`设置URL的端口和目录，如`rtsp://localhost/rtsp`，点击`启动`。<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721964427815-2bc05b41-d26c-461b-b0de-c6a62d17b1e6.png#averageHue=%23272a33&clientId=u65dba835-b3fb-4&from=paste&height=892&id=u1813a305&originHeight=892&originWidth=1061&originalType=binary&ratio=1&rotation=0&showTitle=false&size=282368&status=done&style=none&taskId=ub19b9676-ea1e-4ca8-8a47-ae1871e4c75&title=&width=1061)
+使用`bm-smi`命令验证一下，正常情况如下：<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721963652268-c124005b-81ac-44cc-b556-b2d8f9341b89.png#averageHue=%2340435b&clientId=u65dba835-b3fb-4&from=paste&height=294&id=u9790f00f&originHeight=294&originWidth=907&originalType=binary&ratio=1&rotation=0&showTitle=false&size=39808&status=done&style=none&taskId=u03b918e7-8d79-40ba-a666-ff4f7baa324&title=&width=907)<br />接下来，我们先停止docker，进行其他准备。
+```bash
+docker stop frigate
+```
 <a name="fc6U0"></a>
-## 二、frigate 适配 bm1684x TPU
+## 二、适配 bm1684x TPU
 <a name="XjLVc"></a>
-### 2.1 模型转换
-
+### 2.1 模型转换（可选，项目已提供[yolov8n_320_1684x_f32.bmodel](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/yolov8n_320_1684x_f32.bmodel)）
+需要将pt/tflite/onnx等模型转为bmodel，具体过程参考[tpu-mlir](https://tpumlir.org/docs/quick_start/index.html)。<br />本文将转换yolov8n的模型，先下载yolov8n的onnx模型：
+```bash
+from ultralytics import YOLO
+model = YOLO("yolov8n.pt")
+model.export(format="onnx", imgsz=320)
+# onnx_model = YOLO("yolov10n.onnx")
+# result = onnx_model("https://ultralytics.com/images/bus.jpg", imgsz=320)
+# result[0].show()
+```
+<a name="Ge71v"></a>
+#### 2.1.1 tpu-mlir开发环境配置/
+在windows计算机安装docker-desktop，下载所需的镜像：
+```bash
+docker pull sophgo/tpuc_dev:latest
+```
+创建容器：
+```bash
+docker run --privileged --name mlir_dev -v $PWD:/workspace -it sophgo/tpuc_dev:latest
+```
+安装tpu-mlir：
+```bash
+pip install tpu-mlir
+```
+准备工作目录：<br />建立工作目录`yolov8`，并把模型文件`yolov8n_320.onnx`和图片文件`image/bus.jpg`都放入`yolov8`目录中。
+<a name="Wd8Rr"></a>
+#### 2.1.2 编译onnx模型
+```bash
+# 模型转mlir
+model_transform.py \
+    --model_name yolov8n_320 \
+    --model_def  ./yolov8n_320.onnx \
+    --input_shapes [[1,3,320,320]] \
+    --mean 0.0,0.0,0.0 \
+    --scale 0.0039216,0.0039216,0.0039216 \
+    --pixel_format rgb \
+    --test_input ./image/bus.jpg \
+    --test_result yolov8n_top_outputs.npz \
+    --mlir yolov8n_320.mlir
+  
+# mlir模型转bmodel F32
+model_deploy.py \
+    --mlir yolov8n_320.mlir \
+    --quantize F32 \
+    --chip bm1684x \
+    --test_input yolov8n_320_in_f32.npz \
+    --test_reference yolov8n_top_outputs.npz \
+    --tolerance 0.99,0.99 \
+    --model yolov8n_320_1684x_f32.bmodel
+```
 <a name="J9add"></a>
-### 2.2 为frigate docker编译sophon-sail
+### 2.2 为frigate docker编译sophon-sail（可选，项目已提供[sophon_arm-3.7.0-py39-none-any-glibc2.31.whl](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/sophon_arm-3.7.0-py39-none-any-glibc2.31.whl)）
 查看frigate docker中的python版本和GLIBC的版本。
 ```bash
 linaro@bm1684:~$ python3 --version
@@ -164,13 +214,11 @@ sudo make altinstall
 ```
 <a name="XGore"></a>
 #### 2.2.2 编译sophon-sail
-本地计算机在[算能官网](https://developer.sophgo.com/site/index/material/77/all.html)下载sophon sdk压缩包。本文采用v23.10.01版本。<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721965727488-c07458ed-1cd9-4f89-978d-5a34d5d23f66.png#averageHue=%23fdfdfd&clientId=u15daea81-5619-4&from=paste&height=817&id=ufc7d2a66&originHeight=817&originWidth=1545&originalType=binary&ratio=1&rotation=0&showTitle=false&size=133731&status=done&style=none&taskId=u8c1df18d-acdf-458a-b9cc-8774963e1c6&title=&width=1545)<br />解压后在sophon-sail_xxxxx目录下找到sophon-sail_3.7.0.tar.gz，在sophon-img_xxxxx目录下找到libsophon_soc_0.5.1_aarch64.tar.gz，在sophon-mw_xxxxx目录下找到sophon-mw-soc_0.7.3_aarch64.tar.gz。
-
-进入wsl中安装g++-aarch64-linux-gnu工具链
+本地计算机在[算能官网](https://developer.sophgo.com/site/index/material/77/all.html)下载sophon sdk压缩包。本文采用v23.10.01版本。<br />![image.png](https://cdn.nlark.com/yuque/0/2024/png/38480019/1721965727488-c07458ed-1cd9-4f89-978d-5a34d5d23f66.png#averageHue=%23fdfdfd&clientId=u15daea81-5619-4&from=paste&height=817&id=ufc7d2a66&originHeight=817&originWidth=1545&originalType=binary&ratio=1&rotation=0&showTitle=false&size=133731&status=done&style=none&taskId=u8c1df18d-acdf-458a-b9cc-8774963e1c6&title=&width=1545)<br />解压后在sophon-sail_xxxxx目录下找到sophon-sail_3.7.0.tar.gz，在sophon-img_xxxxx目录下找到libsophon_soc_0.5.1_aarch64.tar.gz，在sophon-mw_xxxxx目录下找到sophon-mw-soc_0.7.3_aarch64.tar.gz。<br />进入wsl中安装g++-aarch64-linux-gnu工具链：
 ```bash
 sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu cmake
 ```
-将sophon-sail_3.7.0.tar.gz复制到wsl的目录下并解压
+将sophon-sail_3.7.0.tar.gz复制到wsl的目录下并解压：
 ```bash
 tar -zxvf sophon-sail_3.7.0.tar.gz
 cd sophon-sail
@@ -179,7 +227,7 @@ cd build
 tar -zxvf libsophon_soc_0.5.0_aarch64.tar.gz
 tar -zxvf sophon-mw-soc_0.7.3_aarch64.tar.gz
 ```
-编译
+编译：
 ```bash
 cmake -DBUILD_TYPE=soc  \
     -DCMAKE_TOOLCHAIN_FILE=../cmake/BM168x_SOC/ToolChain_aarch64_linux.cmake \
@@ -191,7 +239,7 @@ cmake -DBUILD_TYPE=soc  \
 
 make pysail
 ```
-制作安装包
+制作安装包：
 ```bash
 cd ../python/soc
 # 修改 sophon_soc_whl.sh 中的Python3为python3.9
@@ -199,8 +247,36 @@ chmod +x sophon_soc_whl.sh
  python3.9 -m pip install wheel
 ./sophon_soc_whl.sh
 ```
-
-
+生成的安装包`sophon_arm-xxxxx.whl`在`/dist`目录下。
 <a name="gaE1U"></a>
-### 2.3 在tpu上为frigate完成目标检测
+### 2.3 在tpu上实现frigate的模型推理
+<a name="G3AG4"></a>
+#### 2.3.1 安装sophon-sail
+ssh连接Airbox，重新启动docker，打开docker中的bash：
+```bash
+docker start frigate
+docker exec -it frigate bash
+```
+使用sftp将`sophon_arm-3.7.0-py39-none-any-glibc2.31.whl`复制到Airbox，并移动到frigate docker的`/config`对应挂载目录。<br />在docker中安装sophon-sail:
+```bash
+pip3 install sophon_arm-3.7.0-py39-none-any-glibc2.31.whl
+```
+<a name="xKiyS"></a>
+#### 2.3.2 推理代码替换
+将前面转换好的bmodel放在docker的`/config/model_cache`文件夹下。<br />基于friagte环境，使用sail库编写了推理程序[sophgo.py](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/sophgo.py)。由于算能TPU还没有官方的支持，在使用原项目docker时，这里我们替换其他detector的标签，如`openvino`。在docker中执行下面命令：
+```bash
+cp /config/sophgo.py /opt/frigate/frigate/detectors/plugins/sophgo.py
+rm -f /opt/frigate/frigate/detectors/plugins/openvino.py
+```
+然后编辑frigate配置文件`/config/config.yml`，或者在网页上（[http://192.168.150.1:5000/](http://192.168.150.1:5000/)）修改detectors部分如下：
+```bash
+detectors:
+  sophgo:
+    type: openvino
+    device: AUTO
+    model:
+      path: /config/model_cache/yolov8n_320.bmodel
+```
+
+
 
