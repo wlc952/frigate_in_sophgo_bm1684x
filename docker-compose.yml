@@ -1,0 +1,35 @@
+services:
+  frigate:
+    container_name: frigate
+    privileged: true # this may not be necessary for all setups
+    restart: unless-stopped
+    image: ghcr.io/blakeblackshear/frigate:stable-standard-arm64
+    shm_size: "64mb" # update for your cameras based on calculation above
+    devices:
+      - /dev/bm-tach-0 :/dev/bm-tach-0
+      - /dev/bm-tach-1 :/dev/bm-tach-1
+      - /dev/bm-top :/dev/bm-top
+      - /dev/bm-tpu0 :/dev/bm-tpu0
+      - /dev/bm-vpp :/dev/bm-vpp
+      - /dev/bm-wdt-0 :/dev/bm-wdt-0
+      - /dev/bm_efuse :/dev/bm_efuse 
+      - /dev/bmdev-ctl :/dev/bmdev-ctl
+
+    volumes:
+      - /opt/sophon:/opt/sophon
+      - /etc/profile.d:/etc/profile.d
+      - /usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu
+      - /etc/ld.so.conf.d:/etc/ld.so.conf.d
+      - ./config:/config
+      - ./storage:/media/frigate
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000"
+      - "8554:8554" # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    tty: true
+    stdin_open: true

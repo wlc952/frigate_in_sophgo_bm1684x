@@ -1,0 +1,46 @@
+mqtt:
+  enabled: False
+
+record:
+  enabled: True
+  retain:
+    days: 0
+    mode: all
+  events:
+    retain:
+      default: 1
+      mode: motion
+
+detectors:
+  sophgo:
+    type: openvino
+    device: AUTO
+    model:
+      path: /config/model_cache/yolov8n_320.bmodel
+      
+snapshots:
+  enabled: True
+  retain:
+    default: 1
+
+go2rtc:
+  streams:
+    HP_camera:
+      - rtsp://192.168.150.2:554/rtsp # <- stream which supports video & aac audio.
+      - "ffmpeg:test_cam#audio=opus" # <- copy of the stream which transcodes audio to opus for webrtc
+
+cameras:
+  HP_camera: # <--- this will be changed to your actual camera later
+    enabled: True
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/HP_camera
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    live:
+      stream_name: HP_camera
+
+    motion:
+      mask:
+        - 0,461,3,0,1919,0,1919,843,1699,492,1344,458,1346,336,973,317,869,375,866,432
