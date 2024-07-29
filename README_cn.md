@@ -262,18 +262,16 @@ docker exec -it frigate bash
 pip3 install sophon_arm-3.7.0-py39-none-any-glibc2.31.whl
 ```
 <a name="xKiyS"></a>
-#### 2.3.2 推理代码替换
-将前面转换好的bmodel放在docker的`/config/model_cache`文件夹下。<br />基于friagte环境，使用sail库编写了推理程序[sophgo.py](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/sophgo.py)。由于算能TPU还没有官方的支持，在使用原项目docker时，这里我们替换其他detector的标签，如`openvino`。在docker中执行下面命令：
+#### 2.3.2 推理插件配置
+将前面转换好的bmodel放在docker的`/config/model_cache`文件夹下。<br />基于friagte环境，使用sail库编写了推理程序[sophgo.py](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/sophgo.py)。
 ```bash
 cp /config/sophgo.py /opt/frigate/frigate/detectors/plugins/sophgo.py
-rm -f /opt/frigate/frigate/detectors/plugins/openvino.py
 ```
 然后编辑frigate配置文件`/config/config.yml`，或者在网页上（[http://192.168.150.1:5000/](http://192.168.150.1:5000/)）修改detectors部分如下：
 ```bash
 detectors:
   sophgo:
-    type: openvino
-    device: AUTO
+    type: sophgo
     model:
       path: /config/model_cache/yolov8n_320_1684x_f32.bmodel
 ```
