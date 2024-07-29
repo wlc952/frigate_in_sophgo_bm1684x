@@ -253,19 +253,17 @@ Install sophon-sail in container.
 ```bash
 pip3 install sophon_arm-3.7.0-py39-none-any-glibc2.31.whl
 ```
-#### 2.3.2 Inference code replacement
+#### 2.3.2 Inference Plugin Configuration
 Put the previously converted bmodel in the `/config/model_cache` folder of the container.
-Based on the friagte environment, the inference program [sophgo.py](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/sophgo.py) is written using the sophon-sail library. Since there is no official support for the arithmetic TPU yet, when using the original project docker image, here we replace the tags of other detector, such as `openvino`. Execute the following command in the container:
+Based on the friagte environment, the inference program [sophgo.py](https://github.com/wlc952/frigate_in_sophgo_bm1684x/blob/main/sophgo.py) is written using the sophon-sail library. 
 ```bash
 cp /config/sophgo.py /opt/frigate/frigate/detectors/plugins/sophgo.py
-rm -f /opt/frigate/frigate/detectors/plugins/openvino.py
 ```
 Then edit the frigate configuration file `/config/config.yml`, or edit it on the web page ([http://192.168.150.1:5000/).](http://192.168.150.1:5000/).) Mainly change the `detectors` section to the following:
 ```bash
 detectors:
   sophgo:
-    type: openvino
-    device: AUTO
+    type: sophgo
     model:
       path: /config/model_cache/yolov8n_320.bmodel
 ```
