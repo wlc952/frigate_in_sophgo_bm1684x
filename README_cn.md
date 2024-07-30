@@ -13,22 +13,7 @@ NVR with realtime local object detection for IP cameras, deployed on sophgo bm16
 将AirBox的LAN链接网线，WAN口与计算机相连。然后在计算机端配置IP地址，以windows操作系统为例，打开`设置\网络和Internet\更改适配器选项`，点击`以太网——>属性`，手动设置IP地址为`192.168.150.2`，子网掩码`255.255.255.0`。连接成功后，AirBox的IP即是`192.168.150.1`。<br />使用ssh远程工具，连接Airbox。以Termius为例：`NEW HOST`--> IP or Hostname：`192.168.150.1`，Username：`linaro`，Password：`linaro`。<br />Airbox产品已经配置好驱动和libsophon（在 /opt/sophon目录下），可以直接使用`bm-smi`命令查看tpu信息。
 <a name="hkOeB"></a>
 ### 1.3 环境配置
-原项目提供了docker镜像进行快捷的配置，因此我们先装好docker。
-```bash
-# 1. 更新软件包索引
-sudo apt update 
-# 2. 安装所需的软件包
-sudo apt install apt-transport-https ca-certificates curl software-properties-common
-# 3. 添加Docker的官方GPG密钥
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-# 4. 向sources.list添加Docker仓库
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-# 5.安装Docker CE（社区版）
-sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io
-```
-安装docker-compose，创建容器更加方便。
+原项目提供了docker镜像进行快捷的配置。Airbox出厂预装了docker，接着我们安装docker-compose，创建容器更加方便。
 ```bash
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose

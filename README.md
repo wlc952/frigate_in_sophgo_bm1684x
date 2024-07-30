@@ -15,17 +15,7 @@ Use ssh remote tool to connect to Airbox, take Termius as an example: NEW HOST--
 Username: `linaro`, Password: `linaro`.
 Airbox product has been configured with driver and libsophon (in `/opt/sophon` directory), you can use `bm-smi` command to view tpu information directly.
 ### 1.3 Environment Configuration
-The original project provides a docker image for quick configuration, so let's install docker first.
-```bash
-sudo apt update 
-sudo apt install apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io
-```
-Then, install docker-compose to create containers more easily.
+The original project provides a docker image for quick configuration. In Airbox, docker is already installed. Installing docker-compose to create containers more easily.
 ```bash
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
