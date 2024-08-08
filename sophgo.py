@@ -13,13 +13,14 @@ from frigate.detectors.detector_config import BaseDetectorConfig
 
 logger = logging.getLogger(__name__)
 
+DETECTOR_KEY = "sophgo"
 
 class EngineOV:
 
     def __init__(self, model_path="", output_names="", device_id=0):
         if "DEVICE_ID" in os.environ:
             device_id = int(os.environ["DEVICE_ID"])
-            print(">>>> device_id is in os.environ. and device_id = ", device_id)
+            # print(">>>> device_id is in os.environ. and device_id = ", device_id)
         self.model_path = model_path
         self.device_id = device_id
         try:
@@ -50,8 +51,6 @@ class EngineOV:
         output = self.model.process(self.graph_name, args)
         return next(iter(output.values()))
 
-DETECTOR_KEY = "openvino"  # Since Sophgo TPU is not officially supported, the Openvino tag is used here
-
 
 class BmDetectorConfig(BaseDetectorConfig):
     type: Literal[DETECTOR_KEY]
@@ -73,21 +72,16 @@ class BmDetector(DetectionApi):
     def postprocess(self, results,h=320,w=320):
         """
         Processes yolov8 output.
-
         Args:
         results: array with shape: (1, 84, n) where n depends on yolov8 model size
-
         Returns:
         detections: array with shape (20, 6) with 20 rows of (class, confidence, y_min, x_min, y_max, x_max)
         """
 
         results = np.transpose(results[0, :, :])  # array shape (n, 84)
-        scores = np.max(
-            results[:, 4:], axis=1
-        )  # array shape (n,); max confidence of each row
+        scores = np.max(results[:, 4:], axis=1)
 
-        # remove lines with score scores < 0.4
-        filtered_arg = np.argwhere(scores > 0.4)
+        filtered_arg = np.argwhere(scores > 0.4)  # remove lines with score scores < 0.4
         results = results[filtered_arg[:, 0]]
         scores = scores[filtered_arg[:, 0]]
 

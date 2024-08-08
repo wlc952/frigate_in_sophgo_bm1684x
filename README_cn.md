@@ -76,18 +76,10 @@ mqtt:
 
 record:
   enabled: True
-  retain:
-    days: 0
-    mode: all
-  events:
-    retain:
-      default: 1
-      mode: motion
       
 snapshots:
   enabled: True
-  retain:
-    default: 1
+
     
 detectors:  # <--- 先使用默认cpu作为detector
   cpu1:
@@ -96,20 +88,27 @@ detectors:  # <--- 先使用默认cpu作为detector
 
 cameras:
   HP_camera: # <--- this will be changed to your actual camera later
-    enabled: True
     ffmpeg:
       inputs:
         - path: rtsp://192.168.150.2:554/rtsp # <--- your actual url
           roles:
             - detect
-
-    motion:
-      mask:
-        - 0,461,3,0,1919,0,1919,843,1699,492,1344,458,1346,336,973,317,869,375,866,432
 ```
 
 在`docker-compose.yml`文档的同级目录下，使用docker-compose工具创建容器。
-
+目录结构如下：
+```bash
+├── config
+│   ├── config.yml
+│   ├── model_cache
+│   │   ├── yolov8n_320_1684_f32.bmodel
+│   │   └── yolov8n_320_1684x_f32.bmodel
+│   ├── sophgo.py
+│   └── sophon_arm-3.7.0-py3-none-any.whl
+├── docker-compose.yml
+└── storage
+```
+使用命令创建容器：
 ```bash
 docker-compose up
 ```

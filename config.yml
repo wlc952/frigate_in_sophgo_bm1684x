@@ -1,46 +1,128 @@
+# version: 0.13.2
+
 mqtt:
-  enabled: False
+  enabled: false
+
+detectors:
+  sophgo:
+    type: sophgo
+    model:
+      path: /config/model_cache/yolov8n_320_1684_f32.bmodel
+
+detect:
+  enabled: true
+  fps: 5
+
+live:
+  height: 720
+  quality: 25 #(hightest) 1-31 (fastest)
 
 record:
-  enabled: True
+  enabled: true
   retain:
     days: 0
     mode: all
   events:
     retain:
       default: 1
-      mode: motion
+      mode: active_objects
 
-detectors:
-  sophgo:
-    type: openvino
-    device: AUTO
-    model:
-      path: /config/model_cache/yolov8n_320.bmodel
-      
 snapshots:
-  enabled: True
+  enabled: true
   retain:
     default: 1
 
+audio:
+  enabled: true
+  listen:
+  - bark
+  - fire_alarm
+  - scream
+  - speech
+  - yell
+
+birdseye:
+  enabled: true
+  mode: objects
+
+# ffmpeg:
+#   global_args: -hide_banner -loglevel warning -threads 2
+#   hwaccel_args: []
+#   input_args: preset-rtsp-generic
+#   output_args:
+#     detect: -threads 2 -f rawvideo -pix_fmt yuv420p
+#     record: preset-record-generic
+#   retry_interval: 10
+
+objects:
+  track:
+  - person
+  - cat
+  - dog
+  - car
+
 go2rtc:
   streams:
-    HP_camera:
-      - rtsp://192.168.150.2:554/rtsp # <- stream which supports video & aac audio.
-      - "ffmpeg:test_cam#audio=opus" # <- copy of the stream which transcodes audio to opus for webrtc
+    stream1:
+    - rtsp://192.168.150.5:554/rtsp
+    stream2:
+    - rtsp://192.168.150.5:557/rtsp
+    stream3:
+    - rtsp://192.168.150.5:556/rtsp
+    stream4:
+    - rtsp://192.168.150.5:555/rtsp
 
 cameras:
-  HP_camera: # <--- this will be changed to your actual camera later
-    enabled: True
+  camera1:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/HP_camera
-          input_args: preset-rtsp-restream
-          roles:
-            - detect
+      - path: rtsp://127.0.0.1:8554/stream1
+        input_args: preset-rtsp-restream
+        roles:
+          - detect
+          - audio
+          - record
     live:
-      stream_name: HP_camera
+      stream_name: stream1
 
+  camera2:
+    ffmpeg:
+      inputs:
+      - path: rtsp://127.0.0.1:8554/stream2
+        input_args: preset-rtsp-restream
+        roles:
+          - detect
+          - audio
+          - record
+    live:
+      stream_name: stream2
+
+  camera3:
+    ffmpeg:
+      inputs:
+      - path: rtsp://127.0.0.1:8554/stream3
+        input_args: preset-rtsp-restream
+        roles:
+          - detect
+          - audio
+          - record
+    live:
+      stream_name: stream3
+
+  camera4:
+    ffmpeg:
+      inputs:
+      - path: rtsp://127.0.0.1:8554/stream4
+        input_args: preset-rtsp-restream
+        roles:
+          - detect
+          - audio
+          - record
+    live:
+      stream_name: stream4
+    zones:
+      zone_0:
+        coordinates: 1146,259,936,243,813,212,761,264,783,385,1069,650
     motion:
       mask:
-        - 0,461,3,0,1919,0,1919,843,1699,492,1344,458,1346,336,973,317,869,375,866,432
+      - 171,341,306,248,716,105,759,186,813,386,1067,677,105,683
