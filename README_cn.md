@@ -44,9 +44,10 @@ services:
     privileged: true
     restart: unless-stopped
     image: ghcr.io/blakeblackshear/frigate:stable-standard-arm64
-    shm_size: "64mb" 
+    shm_size: "256mb" 
     devices:
       - /dev/jpu :/dev/jpu
+      - /dev/vpu :/dev/vpu
       - /dev/bm-tpu0 :/dev/bm-tpu0
     volumes:
       - /opt/sophon:/opt/sophon
@@ -138,7 +139,7 @@ docker stop frigate
 
 ## 二、适配 bm1684x TPU
 
-### 2.1 模型转换（可选，项目已提供[yolov8n_320_1684x_f32.bmodel](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/yolov8n_320_1684x_f32.bmodel)）
+### 2.1 模型转换（可选，项目已提供bmodel文件`/config/model_cache/*.bmodel`）
 
 需要将pt、tflite、onnx等模型转为bmodel，具体过程参考[tpu-mlir](https://tpumlir.org/docs/quick_start/index.html)。
 
@@ -203,7 +204,7 @@ model_deploy.py \
     --model yolov8n_320_1684x_f32.bmodel
 ```
 
-### 2.2 为frigate docker编译sophon-sail（可选，项目已提供[sophon_arm-3.7.0-py3-none-any.whl](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/sophon_arm-3.7.0-py3-none-any.whl)）
+### 2.2 为frigate docker编译sophon-sail（可选，项目已提供[sophon_arm-3.7.0-py3-none-any.whl](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/config/sophon_arm-3.7.0-py3-none-any.whl)）
 
 查看frigate docker中的python版本和GLIBC的版本。
 

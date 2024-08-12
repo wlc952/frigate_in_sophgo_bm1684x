@@ -4,16 +4,11 @@ services:
     privileged: true # this may not be necessary for all setups
     restart: unless-stopped
     image: ghcr.io/blakeblackshear/frigate:stable-standard-arm64
-    shm_size: "64mb" # update for your cameras based on calculation above
+    shm_size: "256mb" # update for your cameras based on calculation above
     devices:
-      - /dev/bm-tach-0 :/dev/bm-tach-0
-      - /dev/bm-tach-1 :/dev/bm-tach-1
-      - /dev/bm-top :/dev/bm-top
+      - /dev/jpu :/dev/jpu
+      - /dev/vpu :/dev/vpu
       - /dev/bm-tpu0 :/dev/bm-tpu0
-      - /dev/bm-vpp :/dev/bm-vpp
-      - /dev/bm-wdt-0 :/dev/bm-wdt-0
-      - /dev/bm_efuse :/dev/bm_efuse 
-      - /dev/bmdev-ctl :/dev/bmdev-ctl
 
     volumes:
       - /opt/sophon:/opt/sophon

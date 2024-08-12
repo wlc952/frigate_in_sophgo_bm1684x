@@ -46,9 +46,10 @@ services:
     privileged: true
     restart: unless-stopped
     image: ghcr.io/blakeblackshear/frigate:stable-standard-arm64
-    shm_size: "64mb" 
+    shm_size: "256mb" 
     devices:
       - /dev/jpu :/dev/jpu
+      - /dev/vpu :/dev/vpu
       - /dev/bm-tpu0 :/dev/bm-tpu0
     volumes:
       - /opt/sophon:/opt/sophon
@@ -140,7 +141,7 @@ docker stop frigate
 
 ## 2、Adaptation for bm1684x TPUs
 
-### 2.1 Model conversion (optional, [yolov8n_320_1684x_f32.bmodel](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/yolov8n_320_1684x_f32.bmodel) file is provided in this repository)
+### 2.1 Model conversion (optional, bmodel files are provided in this repository)
 
 Models such as pt, tflite, onnx, etc. need to be converted to bmodel, refer to [tpu-mlir](https://tpumlir.org/docs/quick_start/index.html) for the process.
 This note will convert the model of yolov8n, first download the onnx model of yolov8n:
@@ -203,7 +204,7 @@ model_deploy.py \
     --model yolov8n_320_1684x_f32.bmodel
 ```
 
-### 2.2 Compile sophon-sail for frigate docker (optional, [sophon_arm-3.7.0-py3-none-any.whl](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/sophon_arm-3.7.0-py3-none-any.whl) is already provided in this repository)
+### 2.2 Compile sophon-sail for frigate docker (optional, [sophon_arm-3.7.0-py3-none-any.whl](https://github.com/wlc952/frigate_in_sophgo_bm1684x/raw/main/config/sophon_arm-3.7.0-py3-none-any.whl) is already provided in this repository)
 
 Check the python version and GLIBC version in frigate docker.
 
@@ -304,7 +305,7 @@ Copy `sophon_arm-3.7.0-py3-none-any.whl` to Airbox using SFTP and move it to fri
 Install sophon-sail in container.
 
 ```bash
-pip3 install sophon_arm-3.7.0-py3-none-any.whl
+pip3 install /config/sophon_arm-3.7.0-py3-none-any.whl
 ```
 
 #### 2.3.2 Inference Plugin Configuration
