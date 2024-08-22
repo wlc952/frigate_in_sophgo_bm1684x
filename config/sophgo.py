@@ -62,11 +62,11 @@ class BmDetector(DetectionApi):
 
     def __init__(self, detector_config):
         self.model_path = detector_config.model.path
+        self.model = EngineOV(self.model_path)
 
     def inference(self, tensor_input):
         data = {"images": tensor_input}  # input name from model
-        engine = EngineOV(self.model_path)
-        output = engine(data)
+        output = self.model(data)
         return output
     
     def postprocess(self, results,h=320,w=320):
