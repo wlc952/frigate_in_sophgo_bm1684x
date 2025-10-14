@@ -24,6 +24,12 @@ NVR with realtime local object detection for IP cameras, deployed on sophgo bm16
 
 Airbox产品已经配置好驱动和libsophon（在 /opt/sophon目录下），可以直接使用`bm-smi`命令查看tpu信息。
 
+在 host 中安装 `jq`
+
+```bash
+sudo apt install jq
+```
+
 ### 1.3 环境配置
 
 原项目提供了docker镜像进行快捷的配置。Airbox出厂预装了docker，接着我们安装docker-compose，创建容器更加方便。

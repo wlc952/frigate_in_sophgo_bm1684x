@@ -26,6 +26,12 @@ Username: `linaro`, Password: `linaro`.
 
 Airbox product has been configured with driver and libsophon (in `/opt/sophon` directory), you can use `bm-smi` command to view tpu information directly.
 
+Install jq in the host env
+
+```bash
+sudo apt install jq
+```
+
 ### 1.3 Environment Configuration
 
 The original project provides a docker image for quick configuration. In Airbox, docker is already installed. Installing docker-compose to create containers more easily.
